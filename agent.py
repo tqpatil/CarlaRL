@@ -337,7 +337,7 @@ class ActorNetwork(nn.Module):
     def load_checkpoint(self):
         self.load_state_dict(torch.load(self.checkpoint_dir))
 class CriticNetwork(nn.Module):
-    def __init__(self, alpha, fc1_dims=1280, fc2_dims=1024, dir = "tmp/"):
+    def __init__(self, alpha, fc1_dims=1, fc2_dims=1, dir = "tmp/"):
         super(CriticNetwork, self).__init__()
         self.checkpoint_dir = os.path.join(dir, "critic_ppo")
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -370,8 +370,8 @@ class CriticNetwork(nn.Module):
         x5 = self.layer5(x4)
         x5 = nn.functional.adaptive_avg_pool2d(x5, 1)
         x6 = self.fc1(x5)
-        x7 = self.fc2(x6)
-        return x7
+        # x7 = self.fc2(x6)
+        return x6
     def save_checkpoint(self):
         torch.save(self.state_dict(), self.checkpoint_dir)
     def load_checkpoint(self):

@@ -291,7 +291,7 @@ def build_blocks(layer_spec):
     return layers
 
 class ActorNetwork(nn.Module):
-    def __init__(self, n_actions, alpha, fc1_dims=1280, fc2_dims=1024,dir="tmp/"):
+    def __init__(self, n_actions, alpha, fc1_dims=1, fc2_dims=1,dir="tmp/"):
         super(ActorNetwork, self).__init__()
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.checkpoint_dir = os.path.join(dir, "actor_ppo")
@@ -324,8 +324,8 @@ class ActorNetwork(nn.Module):
         x3 = self.layer3(x2)
         x4 = self.layer4(x3)
         x5 = self.layer5(x4)
-        x5 = nn.functional.adaptive_avg_pool2d(x5, self.fc1_dims)
-        x6 = self.fc1(x5)
+        x6 = nn.functional.adaptive_avg_pool2d(x5, 1)
+        # x6 = self.fc1(x6)
         mean = self.fc_mean(x6)
         log_var = self.fc_log_var(x6)
         var = log_var.exp()

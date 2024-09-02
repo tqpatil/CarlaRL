@@ -297,6 +297,8 @@ class ActorNetwork(nn.Module):
         self.checkpoint_dir = os.path.join(dir, "actor_ppo")
         self.model = "MobileNetV4ConvSmall"
         self.spec = MODEL_SPECS[self.model]
+        self.fc1_dims = fc1_dims
+        self.fc2_dims = fc2_dims
         self.conv0 = build_blocks(self.spec['conv0'])
         # layer1
         self.layer1 = build_blocks(self.spec['layer1'])
@@ -322,7 +324,7 @@ class ActorNetwork(nn.Module):
         x3 = self.layer3(x2)
         x4 = self.layer4(x3)
         x5 = self.layer5(x4)
-        x5 = nn.functional.adaptive_avg_pool2d(x5, 1)
+        x5 = nn.functional.adaptive_avg_pool2d(x5, self.fc1_dims)
         x6 = self.fc1(x5)
         mean = self.fc_mean(x6)
         log_var = self.fc_log_var(x6)

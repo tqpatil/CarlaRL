@@ -395,14 +395,19 @@ class Agent:
     def load_models(self):
         self.actor.load_checkpoint()
         self.critic.load_checkpoint()
+    def sample_action(self, distribution):
+        action = distribution.sample()
+        action = torch.tanh(action)
+        probs = distribution.log_prob(action).sum(dim=-1)
+        return action, probs
     def choose_action(self, state):
         if type(state) != torch.FloatTensor:
             state = torch.FloatTensor(state).to(self.actor.device)
         dist = self.actor(state)
         val = self.critic(state)
-        action = dist.sample()
-        probs = torch.squeeze(dist.log_prob(action)).item()
+        action, probs = self.sample_action(dist)
         action = torch.squeeze(action).item()
+        probs = torch.squeeze(probs - (torch.log(1 - action.pow(2) + 1e-6).sum(dim=-1))).item()
         value = torch.squeeze(val).item()
         
         return action, probs, value
@@ -426,7 +431,8 @@ class Agent:
 
                 dist = self.actor(states)
                 critic_value = self.critic(states)
-                new_probs = dist.log_prob(actions)
+                new_probs = dist.log_prob(actions).sum(dim=-1)
+                new_probs = new_probs - (torch.log(1 - action.pow(2) + 1e-6).sum(dim=-1))
 
                 prob_ratio = new_probs.exp() / old_probs.exp()
                 

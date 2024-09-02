@@ -1,20 +1,104 @@
 import gym
 import numpy as np
 import carla
+import random
+import time
+import cv2 
+import math
 SHOW_PREVIEW=True
 IM_WIDTH = 224
 IM_HEIGHT = 224
-class CarlaEnv(gym.Env):
+class CarlaEnv():
     def __init__(self):
         super(CarlaEnv,self).__init__()
+        self.SP_EPISODE= 15
         self.show_cam = SHOW_PREVIEW
         self.im_width = IM_WIDTH
         self.im_height = IM_HEIGHT
+        self.front_camera = None
+        self.steer_amt = 1.0
+        self.client = carla.Client("localhost",4000)
+        self.client.set_timeout(2.0)
+        self.world = self.client.get_world()
+        self.blueprint_library = self.world.get_blueprint_library()
+        self.model_3 = self.blueprint_library.filter("model3")[0]
+    def start(self):
+        self.collision_hist = []
+        self.actor_list = []
+        self.transform = random.choice(self.world.get_map().get_spawn_points())
+        self.vehicle = self.world.spawn_actor(self.model_3, self.transform)
+        self.actor_list.append(self.vehicle)
         
-    def step(self):
-        pass
+        self.cam = self.blueprint_library.find("sensor.camera.semantic_segmentation")
+        self.cam.set_attribute("image_size_x", f"{self.im_width}")
+        self.cam.set_attribute("image_size_y", f"{self.im_height}")
+        self.cam.set_attribute("fov", f"110")
+
+        transform = carla.Transform(carla.Location(x=2.5, z = 0.7))
+        self.sensor = self.world.spawn_actor(self.cam, transform, attach_to=self.vehicle)
+        self.actor_list.append(self.sensor)
+        self.sensor.listen(lambda data: self.process_image(data))
+
+        self.vehicle.apply_control(carla.VehicleControl(throttle=0.0, brake=0.0))
+
+        time.sleep(4)
+
+        collision_sensor = self.blueprint_library.find("sensor.other.collision")
+        self.colsensor = self.world.spawn_actor(collision_sensor, transform, attach_to= self.vehicle)
+        self.actor_list.append(self.colsensor)
+        self.colsensor.listen(lambda x: self.collision_data(x))
+
+        while self.front_camera is None:
+            time.sleep(0.01)
+        self.episode_start = time.time()
+        self.vehicle.apply_control(carla.VehicleControl(throttle=0.0, brake=0.0))
+        return self.front_camera
     def reset(self):
-        pass
+        self.collision_hist = []
+        self.transform = random.choice(self.world.get_map().get_spawn_points())
+        self.vehicle.set_location(self.transform)
+        self.vehicle.apply_control(carla.VehicleControl(throttle=0.0, brake=0.0))
+        time.sleep(4)
+
+        while self.front_camera is None:
+            time.sleep(0.01)
+        self.episode_start = time.time()
+        self.vehicle.apply_control(carla.VehicleControl(throttle=0.0, brake=0.0))
+        return self.front_camera
+        ## reset necessary vars and teleport vehicle back to a random spawn location
+        
+    def collision_data(self, event):
+        self.collision_hist.append(event)
+    def step(self, action):
+        if action < -1 or action > 1:
+            print("Action is not in the bounds -1,1: tanh is not applied correctly!")
+            if action < -1:
+                action = -1
+            else:
+                action = 1
+        self.vehicle.apply_control(carla.VehicleControl(throttle=1.0, steer= action * self.steer_amt))
+        v = self.vehicle.get_velocity()
+        kmh = int(3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2))
+        reward = 0
+        if len(self.collision_hist) != 0:
+            done = True
+            self.collision_hist = []
+            reward -= 100
+        elif kmh < 40:
+            done = False
+            reward -= 10
+        else:
+            done = False
+            reward += 5
+        if self.episode_start + self.SP_EPISODE < time.time():
+            done = True
+            self.collision_hist = []
+        return self.front_camera, reward, done, None
     def process_image(self,image):
         i = np.array(image.raw_data)
-        i2 = i.reshape()
+        i2 = i.reshape((self.im_height, self.im_width, 4))
+        i3 = i2[:, :, :3]
+        if self.show_cam:
+            cv2.imshow("", i3)
+            cv2.waitKey(1)
+        self.front_camera = i3

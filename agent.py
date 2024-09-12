@@ -291,7 +291,7 @@ def build_blocks(layer_spec):
     return layers
 
 class ActorNetwork(nn.Module):
-    def __init__(self, n_actions, alpha, fc1_dims=1, fc2_dims=1,dir="tmp/"):
+    def __init__(self, n_actions, alpha, fc1_dims=224, fc2_dims=1024,dir="tmp/"):
         super(ActorNetwork, self).__init__()
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.checkpoint_dir = os.path.join(dir, "actor_ppo")
@@ -324,20 +324,22 @@ class ActorNetwork(nn.Module):
         x3 = self.layer3(x2)
         x4 = self.layer4(x3)
         x5 = self.layer5(x4)
-        x6 = nn.functional.adaptive_avg_pool2d(x5, 1)
+        # x6 = nn.functional.adaptive_avg_pool2d(x5, 1)
+        x6 = x5.view(x5.size(0), -1)
+        x7 = F.relu(self.fc1(x6))
         # x6 = self.fc1(x6)
-        mean = self.fc_mean(x6)
-        log_var = self.fc_log_var(x6)
+        mean = self.fc_mean(x7)
+        log_var = self.fc_log_var(x7)
         var = log_var.exp()
         dist = torch.distributions.Normal(mean, var)
         # return [x1, x2, x3, x4, x5, x6, x7]
-        return dist 
+        return dist
     def save_checkpoint(self):
         torch.save(self.state_dict(), self.checkpoint_dir)
     def load_checkpoint(self):
         self.load_state_dict(torch.load(self.checkpoint_dir))
 class CriticNetwork(nn.Module):
-    def __init__(self, alpha, fc1_dims=1, fc2_dims=1, dir = "tmp/"):
+    def __init__(self, alpha, fc1_dims=224, fc2_dims=1024, dir = "tmp/"):
         super(CriticNetwork, self).__init__()
         self.checkpoint_dir = os.path.join(dir, "critic_ppo")
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -368,23 +370,21 @@ class CriticNetwork(nn.Module):
         x3 = self.layer3(x2)
         x4 = self.layer4(x3)
         x5 = self.layer5(x4)
-        x5 = nn.functional.adaptive_avg_pool2d(x5, 1)
-        x6 = self.fc1(x5)
-        # x7 = self.fc2(x6)
+        x6 = F.relu(self.fc1(x5))
+        x7 = self.fc2(x6)
         return x6
     def save_checkpoint(self):
         torch.save(self.state_dict(), self.checkpoint_dir)
     def load_checkpoint(self):
         self.load_state_dict(torch.load(self.checkpoint_dir))
 class Agent:
-    def __init__(self, n_actions, gamma=0.99, alpha = 0.0001, gae_lambda = 0.97, policy_clip = 0.2, batch_size = 64, N=2048, n_epochs = 10):
+    def __init__(self, n_actions, gamma=0.99, alpha = 0.0001, gae_lambda = 0.97, policy_clip = 0.2, batch_size = 64, n_epochs = 10):
         self.gamma = gamma
         self.n_actions = n_actions
         self.alpha = alpha
         self.gae_lambda = gae_lambda
         self.policy_clip = policy_clip
         self.batch_size = batch_size
-        self.N = N
         self.n_epochs = n_epochs
         self.actor= ActorNetwork(n_actions, alpha)
         self.critic = CriticNetwork(alpha + 0.0001)
@@ -398,8 +398,7 @@ class Agent:
         self.actor.load_checkpoint()
         self.critic.load_checkpoint()
     def sample_action(self, distribution):
-        action = distribution.sample()
-        action = torch.tanh(action)
+        action = distribution.rsample()
         probs = distribution.log_prob(action).sum(dim=-1)
         return action, probs
     def choose_action(self, state):
@@ -409,7 +408,7 @@ class Agent:
         val = self.critic(state)
         action, probs = self.sample_action(dist)
         action = torch.squeeze(action).item()
-        probs = torch.squeeze(probs - (torch.log(1 - action.pow(2) + 1e-6).sum(dim=-1))).item()
+        probs = torch.squeeze(probs).item()
         value = torch.squeeze(val).item()
         
         return action, probs, value
@@ -434,7 +433,6 @@ class Agent:
                 dist = self.actor(states)
                 critic_value = self.critic(states)
                 new_probs = dist.log_prob(actions).sum(dim=-1)
-                new_probs = new_probs - (torch.log(1 - action.pow(2) + 1e-6).sum(dim=-1))
 
                 prob_ratio = new_probs.exp() / old_probs.exp()
                 
@@ -452,11 +450,13 @@ class Agent:
                 self.critic.optimizer.step()
         self.memory.clear_memory()    
 
-net = Agent(4)
-x = torch.rand(1, 3, 224, 224)
-print(net.choose_action(x))
-
-# y = net(x)
+# net = Agent(4)
+# x = torch.rand(1, 3, 224, 224)
+# print(net.choose_action(x))
+net = ActorNetwork(4, 0.001)
+print(net.layer5)
+for name in (net.layer5.parameters()):
+    print(name.size())
 # for i in y:
 #     print(i.shape)
 # print(y[-1])

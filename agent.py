@@ -325,7 +325,7 @@ class ActorNetwork(nn.Module):
         x4 = self.layer4(x3)
         x5 = self.layer5(x4)
         # x6 = nn.functional.adaptive_avg_pool2d(x5, 1)
-        x6 = x5.view(x5.size(0), -1)
+        x6 = x5.reshape(x5.size(0), -1)
         x7 = F.relu(self.fc1(x6))
         # x6 = self.fc1(x6)
         mean = self.fc_mean(x7)
@@ -370,6 +370,7 @@ class CriticNetwork(nn.Module):
         x3 = self.layer3(x2)
         x4 = self.layer4(x3)
         x5 = self.layer5(x4)
+        x5 = x5.reshape(x5.size(0), -1)
         x6 = F.relu(self.fc1(x5))
         x7 = self.fc2(x6)
         return x6

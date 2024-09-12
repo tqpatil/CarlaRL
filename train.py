@@ -15,15 +15,18 @@ if __name__ == '__main__':
     best_score = float('-inf')
     for episode in range(num_episodes):
         if episode == 0:
-            state = torch.FloatTensor(env.start()).to(agent.actor.device)
+            state = torch.tensor(env.start(), dtype=torch.float).to(agent.actor.device).unsqueeze(0)
+            state = state.permute(0, 3, 1, 2)
+            print(state.shape)
         else:
-            state = torch.FloatTensor(env.reset()).to(agent.actor.device)
+            state = torch.tensor(env.reset(), dtype=torch.float).to(agent.actor.device).unsqueeze(0)
+            state = state.permute(0, 3, 1, 2)
         done = False
         score = 0
         while not done:
             action,prob, val = agent.choose_action(state)
             state_, reward, done, info = env.step(action)
-            state_ = torch.FloatTensor(state_).to(agent.actor.device)
+            state_ = torch.tensor(state_, dtype=torch.float).to(agent.actor.device)
             n_steps += 1
             score += reward
             agent.store_memory(state, action, prob, val, reward, done)

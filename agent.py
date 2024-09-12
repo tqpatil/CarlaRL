@@ -402,8 +402,8 @@ class Agent:
         probs = distribution.log_prob(action).sum(dim=-1)
         return action, probs
     def choose_action(self, state):
-        if type(state) != torch.FloatTensor:
-            state = torch.FloatTensor(state).to(self.actor.device)
+        if type(state) != torch.Tensor:
+            state = torch.tensor(state, dtype=torch.float).to(self.actor.device)
         dist = self.actor(state)
         val = self.critic(state)
         action, probs = self.sample_action(dist)
@@ -424,7 +424,7 @@ class Agent:
                     a_t += discount*(reward[k] + (self.gamma * (vals[k+1]* (1-int(done[k])))) - vals[k])
                     discount *= self.gamma * self.gae_lambda
                 advantage[t] = a_t
-            advantage = torch.FloatTensor(advantage).to(self.actor.device)
+            advantage = torch.tensor(advantage,dtype=np.float64).to(self.actor.device)
             for batch in batches:
                 states = state[batch]
                 old_probs = old_probs[batch]
@@ -450,13 +450,13 @@ class Agent:
                 self.critic.optimizer.step()
         self.memory.clear_memory()    
 
-# net = Agent(4)
-# x = torch.rand(1, 3, 224, 224)
-# print(net.choose_action(x))
-net = ActorNetwork(4, 0.001)
-print(net.layer5)
-for name in (net.layer5.parameters()):
-    print(name.size())
-# for i in y:
-#     print(i.shape)
-# print(y[-1])
+# # net = Agent(4)
+# # x = torch.rand(1, 3, 224, 224)
+# # print(net.choose_action(x))
+# net = ActorNetwork(4, 0.001)
+# print(net.layer5)
+# for name in (net.layer5.parameters()):
+#     print(name.size())
+# # for i in y:
+# #     print(i.shape)
+# # print(y[-1])

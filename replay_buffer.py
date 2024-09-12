@@ -30,13 +30,13 @@ class ReplayBuffer:
         np.random.shuffle(indices)
         batches = [indices[i: i+self.batch_size] for i in batch_start]
         return (
-            torch.FloatTensor(self.states).to(self.device),
-            torch.LongTensor(self.actions).to(self.device),
-            torch.FloatTensor(self.probs).to(self.device),
-            torch.FloatTensor(self.vals).to(self.device),
-            torch.FloatTensor(self.rewards).to(self.device),
-            torch.FloatTensor(self.dones).to(self.device),
-            torch.FloatTensor(batches).to(self.device)
+            torch.tensor(self.states, dtype=torch.float).to(self.device),
+            torch.tensor(self.actions, dtype=torch.long).to(self.device),
+            torch.tensor(self.probs, dtype=torch.float).to(self.device),
+            torch.tensor(self.vals, dtype=torch.float).to(self.device),
+            torch.tensor(self.rewards, dtype=torch.float).to(self.device),
+            torch.tensor(self.dones, dtype=torch.float).to(self.device),
+            torch.tensor(batches, dtype=torch.float).to(self.device)
         )
     def clear_memory(self):
         self.states = []

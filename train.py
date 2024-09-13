@@ -3,6 +3,26 @@ from agent import Agent
 import matplotlib.pyplot as plt
 from environment import CarlaEnv
 import numpy as np
+"""
+Traceback (most recent call last):
+  File "train.py", line 27, in <module>
+    action,prob, val = agent.choose_action(state)
+  File "/home/ubuntu/Documents/CarlaRL/agent.py", line 408, in choose_action
+    dist = self.actor(state)
+  File "/home/ubuntu/miniconda3/envs/carla/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/carla/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/ubuntu/Documents/CarlaRL/agent.py", line 329, in forward
+    x7 = F.relu(self.fc1(x6))
+  File "/home/ubuntu/miniconda3/envs/carla/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/carla/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/carla/lib/python3.8/site-packages/torch/nn/modules/linear.py", line 117, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: mat1 and mat2 shapes cannot be multiplied (1x62720 and 224x1024
+"""
 if __name__ == '__main__':
     lr = 0.0001
     n_epochs = 15

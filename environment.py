@@ -70,7 +70,6 @@ class CarlaEnv():
         self.collision_hist.append(event)
     def step(self, action):
         if action < -1 or action > 1:
-            print("Action is not in the bounds -1,1: tanh is not applied correctly!")
             if action < -1:
                 action = -1
             else:

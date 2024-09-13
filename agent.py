@@ -426,7 +426,7 @@ class Agent:
                     a_t += discount*(reward[k] + (self.gamma * (vals[k+1]* (1-int(done[k])))) - vals[k])
                     discount *= self.gamma * self.gae_lambda
                 advantage[t] = a_t
-            advantage = torch.tensor(advantage,dtype=np.float64).to(self.actor.device)
+            advantage = torch.tensor(advantage,dtype=torch.float).to(self.actor.device)
             for batch in batches:
                 states = state[batch]
                 old_probs = old_probs[batch]

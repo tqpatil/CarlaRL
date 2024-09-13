@@ -36,7 +36,7 @@ class ReplayBuffer:
             torch.tensor(self.vals, dtype=torch.float).to(self.device),
             torch.tensor(self.rewards, dtype=torch.float).to(self.device),
             torch.tensor(self.dones, dtype=torch.float).to(self.device),
-            torch.tensor(batches, dtype=torch.float).to(self.device)
+            batches
         )
     def clear_memory(self):
         self.states = []

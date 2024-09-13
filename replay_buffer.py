@@ -1,9 +1,9 @@
 import os
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.distributions.normal import Normal
+import random
 class ReplayBuffer:
     def __init__(self, batch_size, device, state_dim):
         self.states = []
@@ -25,10 +25,10 @@ class ReplayBuffer:
 
     def generate_batches(self):
         n_states = len(self.states)
-        batch_start = np.arange(0, n_states, self.batch_size)
-        indices = np.arange(n_states, dtype = np.int64)
-        np.random.shuffle(indices)
-        batches = [indices[i: i+self.batch_size] for i in batch_start]
+        batch_start = list(range(0, n_states, self.batch_size)) 
+        indices = list(range(n_states))  
+        random.shuffle(indices)  
+        batches = [indices[i: i + self.batch_size] for i in batch_start]
         return (
             torch.stack(self.states).to(self.device),
             torch.tensor(self.actions, dtype=torch.long).to(self.device),

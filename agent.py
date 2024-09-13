@@ -291,7 +291,7 @@ def build_blocks(layer_spec):
     return layers
 
 class ActorNetwork(nn.Module):
-    def __init__(self, n_actions, alpha, fc1_dims=224, fc2_dims=1024,dir="tmp/"):
+    def __init__(self, n_actions, alpha, fc1_dims=1280, fc2_dims=1024,dir="tmp/"):
         super(ActorNetwork, self).__init__()
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.checkpoint_dir = os.path.join(dir, "actor_ppo")
@@ -339,7 +339,7 @@ class ActorNetwork(nn.Module):
     def load_checkpoint(self):
         self.load_state_dict(torch.load(self.checkpoint_dir))
 class CriticNetwork(nn.Module):
-    def __init__(self, alpha, fc1_dims=224, fc2_dims=1024, dir = "tmp/"):
+    def __init__(self, alpha, fc1_dims=1280, fc2_dims=1024, dir = "tmp/"):
         super(CriticNetwork, self).__init__()
         self.checkpoint_dir = os.path.join(dir, "critic_ppo")
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')

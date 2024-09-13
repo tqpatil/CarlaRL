@@ -30,7 +30,7 @@ class ReplayBuffer:
         random.shuffle(indices)  
         batches = [indices[i: i + self.batch_size] for i in batch_start]
         return (
-            torch.stack(self.states).to(self.device),
+            torch.cat(self.states).to(self.device),
             torch.tensor(self.actions, dtype=torch.long).to(self.device),
             torch.tensor(self.probs, dtype=torch.float).to(self.device),
             torch.tensor(self.vals, dtype=torch.float).to(self.device),

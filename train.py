@@ -27,6 +27,7 @@ if __name__ == '__main__':
         while not done:
             action,prob, val = agent.choose_action(state)
             state_, reward, done, info = env.step(action)
+            plt.imshow(state_)
             state_ = torch.tensor(state_, dtype=torch.float).to(agent.actor.device).unsqueeze(0)
             state_ = state_.permute(0, 3, 1, 2)
             n_steps += 1
@@ -42,4 +43,3 @@ if __name__ == '__main__':
             agent.save_models()
         
         print(f'episode: {episode}, score: {score:.2f}, avg_score: {avg_score:.2f}, time_steps: {n_steps}')
-        plt.plot(score_history)

@@ -55,7 +55,7 @@ class CarlaEnv():
     def reset(self):
         self.collision_hist = []
         self.transform = random.choice(self.world.get_map().get_spawn_points())
-        self.vehicle.set_location(self.vehicle, self.transform)
+        self.vehicle.set_location(self.model_3, self.transform)
         self.vehicle.apply_control(carla.VehicleControl(throttle=0.0, brake=0.0))
         time.sleep(4)
 

@@ -26,8 +26,8 @@ if __name__ == '__main__':
         score = 0
         while not done:
             action,prob, val = agent.choose_action(state)
+            print(state)
             state_, reward, done, info = env.step(action)
-            plt.imshow(state_)
             state_ = torch.tensor(state_, dtype=torch.float).to(agent.actor.device).unsqueeze(0)
             state_ = state_.permute(0, 3, 1, 2)
             n_steps += 1

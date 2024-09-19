@@ -28,7 +28,7 @@ class CarlaEnv():
         self.vehicle = self.world.spawn_actor(self.model_3, self.transform)
         self.actor_list.append(self.vehicle)
         
-        self.cam = self.blueprint_library.find("sensor.camera.semantic_segmentation")
+        self.cam = self.blueprint_library.find("sensor.camera.rgb")
         self.cam.set_attribute("image_size_x", f"{self.im_width}")
         self.cam.set_attribute("image_size_y", f"{self.im_height}")
         self.cam.set_attribute("fov", f"110")

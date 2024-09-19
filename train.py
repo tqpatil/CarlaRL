@@ -6,7 +6,7 @@ import numpy as np
 
 if __name__ == '__main__':
     lr = 0.0001
-    n_epochs = 15
+    n_epochs = 50
     agent = Agent(n_actions=5, alpha = lr, n_epochs=n_epochs)
     env = CarlaEnv()
     N = 50

@@ -4,7 +4,7 @@ import random
 import time
 import cv2 
 import math
-SHOW_PREVIEW=True
+SHOW_PREVIEW=False
 IM_WIDTH = 224
 IM_HEIGHT = 224
 class CarlaEnv():

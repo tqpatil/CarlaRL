@@ -18,7 +18,6 @@ if __name__ == '__main__':
         if episode == 0:
             state = torch.tensor(env.start(), dtype=torch.float).to(agent.actor.device).unsqueeze(0)
             state = state.permute(0, 3, 1, 2)
-            print(state.shape)
         else:
             state = torch.tensor(env.reset(), dtype=torch.float).to(agent.actor.device).unsqueeze(0)
             state = state.permute(0, 3, 1, 2)
@@ -26,7 +25,6 @@ if __name__ == '__main__':
         score = 0
         while not done:
             action,prob, val = agent.choose_action(state)
-            print(state.mean())
             state_, reward, done, info = env.step(action)
             state_ = torch.tensor(state_, dtype=torch.float).to(agent.actor.device).unsqueeze(0)
             state_ = state_.permute(0, 3, 1, 2)

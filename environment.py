@@ -81,13 +81,13 @@ class CarlaEnv():
         if len(self.collision_hist) != 0:
             done = True
             self.collision_hist = []
-            reward -= 100
+            reward -= 50
         elif kmh < 40:
             done = False
             reward -= 10
         else:
             done = False
-            reward += 5
+            reward += 10
         if self.episode_start + self.SP_EPISODE < time.time():
             done = True
             self.collision_hist = []

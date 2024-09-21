@@ -23,6 +23,7 @@ class CarlaEnv():
         self.model_3 = self.blueprint_library.filter("model3")[0]
     def start(self):
         self.collision_hist = []
+        self.laneIntr_hist = []
         self.actor_list = []
         self.transform = random.choice(self.world.get_map().get_spawn_points())
         self.vehicle = self.world.spawn_actor(self.model_3, self.transform)
@@ -43,9 +44,13 @@ class CarlaEnv():
         time.sleep(4)
 
         collision_sensor = self.blueprint_library.find("sensor.other.collision")
+        lane_sensor = self.blueprint_library.find("sensor.other.lane_invasion")
         self.colsensor = self.world.spawn_actor(collision_sensor, transform, attach_to= self.vehicle)
+        self.lanesensor = self.world.spawn_actor(lane_sensor, transform, attach_to = self.vehicle)
         self.actor_list.append(self.colsensor)
+        self.actor_list.append(self.lanesensor)
         self.colsensor.listen(lambda x: self.collision_data(x))
+        self.lanesensor.listen(lambda x: self.lane_data(x))
 
         while self.front_camera is None:
             time.sleep(0.01)
@@ -54,6 +59,7 @@ class CarlaEnv():
         return self.front_camera
     def reset(self):
         self.collision_hist = []
+        self.laneIntr_hist = []
         self.transform = random.choice(self.world.get_map().get_spawn_points())
         self.vehicle.set_location(self.transform.location)
         self.vehicle.apply_control(carla.VehicleControl(throttle=0.0, brake=0.0))
@@ -68,6 +74,8 @@ class CarlaEnv():
         
     def collision_data(self, event):
         self.collision_hist.append(event)
+    def lane_data(self, event):
+        self.laneIntr_hist.append(event)
     def step(self, action):
         if action < -1 or action > 1:
             if action < -1:
@@ -78,6 +86,10 @@ class CarlaEnv():
         v = self.vehicle.get_velocity()
         kmh = int(3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2))
         reward = 0
+        if len(self.laneIntr_hist) != 0:
+            done = False
+            reward -= 5 * len(self.laneIntr_hist)
+            self.laneIntr_hist = []
         if len(self.collision_hist) != 0:
             done = True
             self.collision_hist = []

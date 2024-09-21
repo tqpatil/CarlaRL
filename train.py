@@ -5,10 +5,11 @@ from environment import CarlaEnv
 import numpy as np
 
 if __name__ == '__main__':
-    lr = 0.001
+    lr = 0.0002
     n_epochs = 50
     agent = Agent(n_actions=5, alpha = lr, n_epochs=n_epochs)
     env = CarlaEnv()
+    strBuilder = ""
     N = 50
     n_steps = 0
     score_history = []
@@ -19,7 +20,7 @@ if __name__ == '__main__':
             state = torch.tensor(env.start(), dtype=torch.float).to(agent.actor.device).unsqueeze(0)
             state = state.permute(0, 3, 1, 2)
         else:
-            state = torch.tensor(env.reset(), dtype=torch.float).to(agent.actor.device).unsqueeze(0)
+            state = torch.tensor(env.start(), dtype=torch.float).to(agent.actor.device).unsqueeze(0)
             state = state.permute(0, 3, 1, 2)
         done = False
         score = 0
@@ -39,5 +40,15 @@ if __name__ == '__main__':
         if avg_score > best_score:
             best_score = avg_score
             agent.save_models()
-        
+        strBuilder += f'episode: {episode}, score: {score:.2f}, avg_score: {avg_score:.2f}, time_steps: {n_steps}\n'
         print(f'episode: {episode}, score: {score:.2f}, avg_score: {avg_score:.2f}, time_steps: {n_steps}')
+    print("seg")
+    with open("tmp/tracker.txt", "w") as file:
+        file.write(strBuilder)
+    print("seg")
+    plt.plot(score_history)
+    plt.xlabel("Episode")
+    plt.ylabel("Score")
+    print("seg")
+    plt.savefig("tmp/figure.png")
+    print("seg")

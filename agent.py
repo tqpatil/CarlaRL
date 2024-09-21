@@ -119,7 +119,7 @@ class UniversalInvertedBottleneckBlock(nn.Module):
         return x
 
 class MultiQueryAttentionLayerWithDownSampling(nn.Module):
-    def __init__(self, inp, num_heads, key_dim, value_dim, query_h_strides, query_w_strides, kv_strides, dw_kernel_size=3, dropout=0.0):
+    def __init__(self, inp, num_heads, key_dim, value_dim, query_h_strides, query_w_strides, kv_strides, dw_kernel_size=3, dropout=0.4):
         """Multi Query Attention with spatial downsampling.
         Referenced from here https://github.com/tensorflow/models/blob/master/official/vision/modeling/layers/nn_blocks.py
 
@@ -315,7 +315,7 @@ class ActorNetwork(nn.Module):
         # self.softmax = nn.Softmax(dim = -1)
         self.fc_mean = nn.Linear(fc2_dims, 1)
         self.fc_log_var = nn.Linear(fc2_dims, 1)
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=alpha)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=alpha, weight_decay=1e-5)
         self.to(self.device)
     def forward(self, x):
         x0 = self.conv0(x)
@@ -361,7 +361,7 @@ class CriticNetwork(nn.Module):
      
         # self.fc_mean = nn.Linear(1280, 1)
         # self.fc_variance = nn.Linear(1280, 1)
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=alpha)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=alpha, weight_decay=1e-5)
         self.to(self.device)
     def forward(self, x):
         x0 = self.conv0(x)

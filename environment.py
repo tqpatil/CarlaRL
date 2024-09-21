@@ -21,7 +21,17 @@ class CarlaEnv():
         self.world = self.client.get_world()
         self.blueprint_library = self.world.get_blueprint_library()
         self.model_3 = self.blueprint_library.filter("model3")[0]
+        self.lanesensor = None
+        self.sensor = None
+        self.colsensor = None
     def start(self):
+        if self.lanesensor is not None and self.lanesensor.is_listening:
+            self.lanesensor.stop()
+            self.colsensor.stop()
+            self.sensor.stop()
+        self.lanesensor = None
+        self.sensor = None
+        self.colsensor = None
         self.collision_hist = []
         self.laneIntr_hist = []
         self.actor_list = []

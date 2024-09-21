@@ -45,7 +45,7 @@ class CarlaEnv():
 
         collision_sensor = self.blueprint_library.find("sensor.other.collision")
         lane_sensor = self.blueprint_library.find("sensor.other.lane_invasion")
-        transform2 = carla.Transform(carla.Location(x=2.4, z = 0.7))
+        transform2 = carla.Transform(carla.Location(x=2.0, z = 0.8))
         self.colsensor = self.world.spawn_actor(collision_sensor, transform, attach_to= self.vehicle)
         self.lanesensor = self.world.spawn_actor(lane_sensor, transform2, attach_to = self.vehicle)
         self.actor_list.append(self.colsensor)

@@ -24,6 +24,7 @@ class CarlaEnv():
         self.lanesensor = None
         self.sensor = None
         self.colsensor = None
+        self.actor_list = []
     def start(self):
         if self.lanesensor is not None and self.lanesensor.is_listening:
             self.lanesensor.stop()
@@ -32,6 +33,8 @@ class CarlaEnv():
         self.lanesensor = None
         self.sensor = None
         self.colsensor = None
+        for actor in self.actor_list:
+            actor.destroy()
         self.collision_hist = []
         self.laneIntr_hist = []
         self.actor_list = []
@@ -69,6 +72,16 @@ class CarlaEnv():
         self.vehicle.apply_control(carla.VehicleControl(throttle=0.0, brake=0.0))
         return self.front_camera
     def reset(self):
+        if self.lanesensor is not None and self.lanesensor.is_listening:
+            self.lanesensor.stop()
+            self.colsensor.stop()
+            self.sensor.stop()
+        self.lanesensor = None
+        self.sensor = None
+        self.colsensor = None
+        for actor in self.actor_list:
+            actor.destroy()
+        self.actor_list = []
         self.collision_hist = []
         self.laneIntr_hist = []
         self.transform = random.choice(self.world.get_map().get_spawn_points())

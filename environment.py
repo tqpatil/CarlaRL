@@ -45,8 +45,9 @@ class CarlaEnv():
 
         collision_sensor = self.blueprint_library.find("sensor.other.collision")
         lane_sensor = self.blueprint_library.find("sensor.other.lane_invasion")
+        transform2 = carla.Transform(carla.Location(x=2.4, z = 0.7))
         self.colsensor = self.world.spawn_actor(collision_sensor, transform, attach_to= self.vehicle)
-        self.lanesensor = self.world.spawn_actor(lane_sensor, transform, attach_to = self.vehicle)
+        self.lanesensor = self.world.spawn_actor(lane_sensor, transform2, attach_to = self.vehicle)
         self.actor_list.append(self.colsensor)
         self.actor_list.append(self.lanesensor)
         self.colsensor.listen(lambda x: self.collision_data(x))
@@ -103,6 +104,7 @@ class CarlaEnv():
         if self.episode_start + self.SP_EPISODE < time.time():
             done = True
             self.collision_hist = []
+            self.laneIntr_hist = []
         return self.front_camera, reward, done, None
     def process_image(self,image):
         i = np.array(image.raw_data)

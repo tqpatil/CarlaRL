@@ -39,8 +39,17 @@ class CarlaEnv():
         self.collision_hist = []
         self.laneIntr_hist = []
         self.actor_list = []
-        self.transform = random.choice(self.world.get_map().get_spawn_points())
-        self.vehicle = self.world.spawn_actor(self.model_3, self.transform)
+        success = 50
+        while(success > 0):
+            try:
+                self.transform = random.choice(self.world.get_map().get_spawn_points())
+                self.vehicle = self.world.spawn_actor(self.model_3, self.transform)
+                break
+            except Exception as e:
+                success -= 1
+                continue
+        if success <= 0:
+            raise RuntimeError()
         self.actor_list.append(self.vehicle)
         
         self.cam = self.blueprint_library.find("sensor.camera.rgb")

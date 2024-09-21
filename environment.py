@@ -34,7 +34,6 @@ class CarlaEnv():
         self.sensor = None
         self.colsensor = None
         for actor in self.actor_list:
-            print(actor.type_id)
             actor.destroy()
         self.collision_hist = []
         self.laneIntr_hist = []

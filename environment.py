@@ -121,15 +121,15 @@ class CarlaEnv():
         reward = 0
         if len(self.laneIntr_hist) != 0:
             done = False
-            reward -= 25
+            reward -= 10
             self.laneIntr_hist = []
         if len(self.collision_hist) != 0:
             done = True
             self.collision_hist = []
-            reward -= 40
+            reward -= 50
         elif kmh < 25:
             done = False
-            reward -= 40
+            reward -= 20
         else:
             done = False
             reward += 20

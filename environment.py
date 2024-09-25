@@ -121,7 +121,7 @@ class CarlaEnv():
         reward = 0
         if len(self.laneIntr_hist) != 0:
             done = False
-            reward -= 5 * len(self.laneIntr_hist)
+            reward -= 40
             self.laneIntr_hist = []
         if len(self.collision_hist) != 0:
             done = True

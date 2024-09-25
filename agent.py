@@ -328,7 +328,7 @@ class ActorNetwork(nn.Module):
         x6 = x6.reshape(x6.size(0), -1)
         x7 = F.tanh(self.fc1(x6))
         # x6 = self.fc1(x6)
-        mean = F.tanh(self.fc_mean(x7))
+        mean = F.sigmoid(self.fc_mean(x7))
         var = F.softplus(self.fc_log_var(x7))
         dist = torch.distributions.Normal(mean, var)
         # return [x1, x2, x3, x4, x5, x6, x7]

@@ -19,6 +19,7 @@ class CarlaEnv():
         self.client = carla.Client("localhost",4000)
         self.client.set_timeout(2.0)
         self.world = self.client.get_world()
+        self.spectator = self.world.get_spectator()
         self.blueprint_library = self.world.get_blueprint_library()
         self.model_3 = self.blueprint_library.filter("model3")[0]
         self.lanesensor = None
@@ -43,6 +44,7 @@ class CarlaEnv():
             try:
                 self.transform = random.choice(self.world.get_map().get_spawn_points())
                 self.vehicle = self.world.spawn_actor(self.model_3, self.transform)
+                self.spectator.set_transform(self.transform)
                 break
             except Exception as e:
                 success -= 1
@@ -94,7 +96,8 @@ class CarlaEnv():
         self.collision_hist = []
         self.laneIntr_hist = []
         self.transform = random.choice(self.world.get_map().get_spawn_points())
-        self.vehicle.set_location(self.transform.location)
+        self.vehicle.set_transform(self.transform)
+        self.spectator.set_transform(self.transform)
         self.vehicle.apply_control(carla.VehicleControl(throttle=0.0, brake=0.0))
         time.sleep(4)
 

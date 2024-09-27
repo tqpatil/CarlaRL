@@ -5,15 +5,16 @@ from environment import CarlaEnv
 import numpy as np
 
 if __name__ == '__main__':
-    lr = 0.0001
-    n_epochs = 10
+    lr = 0.00004
+    n_epochs = 7
     agent = Agent(n_actions=5, alpha = lr, n_epochs=n_epochs)
     env = CarlaEnv()
     strBuilder = ""
     N = 50
     n_steps = 0
     score_history = []
-    num_episodes = 1500
+    avg_history = []
+    num_episodes = 950
     best_score = float('-inf')
     for episode in range(num_episodes):
         if episode == 0:
@@ -38,6 +39,7 @@ if __name__ == '__main__':
                 state = state_
             score_history.append(score)
             avg_score = np.mean(score_history[-100::])
+            avg_history.append(avg_score)
             if avg_score > best_score:
                 best_score = avg_score
                 agent.save_models()
@@ -46,13 +48,13 @@ if __name__ == '__main__':
         except Exception as e:
             with open("tmp/tracker.txt", "w") as file:
                 file.write(strBuilder)
-            plt.plot(score_history)
+            plt.plot(avg_history)
             plt.xlabel("Episode")
             plt.ylabel("Score")
             plt.savefig("tmp/figure.png")
     with open("tmp/tracker.txt", "w") as file:
         file.write(strBuilder)
-    plt.plot(score_history)
+    plt.plot(avg_history)
     plt.xlabel("Episode")
-    plt.ylabel("Score")
+    plt.ylabel("Average Score")
     plt.savefig("tmp/figure.png")

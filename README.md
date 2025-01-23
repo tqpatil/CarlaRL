@@ -3,3 +3,5 @@
 ``` python train.py ```
 - To test/evaluate a model:
 ``` python test.py ```
+- To continue training an existing model:
+``` python trainExisting.py ```
